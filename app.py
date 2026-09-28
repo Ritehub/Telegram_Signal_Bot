@@ -15,10 +15,17 @@ def send_telegram(text):
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    data = request.json
+  # Fetch raw body directly (handles plain text from Make)
+    raw_data = request.get_data(as_text=True)
     
-    if not data:
+    if not raw_data:
         return "No data received", 400
+
+    # Parse JSON if possible, otherwise treat as raw string
+    data = request.get_json(silent=True)
+    if data is None:
+        data = {"text": raw_data}
+
 
     if data.get('stage') == 1:
         msg = (
