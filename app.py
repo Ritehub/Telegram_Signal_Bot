@@ -15,19 +15,20 @@ def send_telegram(text):
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-  # Fetch raw body directly (handles plain text from Make)
+  # Fetch raw payload string from request body
     raw_data = request.get_data(as_text=True)
     
     if not raw_data:
         return "No data received", 400
 
-    # Parse JSON if possible, otherwise treat as raw string
+    # Parse JSON if possible, otherwise wrap raw string in a dict
     data = request.get_json(silent=True)
-    if data is None:
+    if not isistance(data, dict):
         data = {"text": raw_data}
 
-
-    if data.get('stage') == 1:
+    Safe stage lookup(prevents AttributeError)
+    
+    if isistance(data, dict) and data.get('stage') == 1:
         msg = (
             f"🟡 *STAGE 1: SETUP FORMED [{data.get('symbol')}]*\n\n"
             f"• *Bias:* {data.get('bias')}\n"
